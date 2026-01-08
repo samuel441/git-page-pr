@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>PR Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <h1>Pull Requests por Prioridade</h1>
+
+  <div id="board"></div>
+
+  <script>
+    async function load() {
+      const res = await fetch('./data.json');
+      const prs = await res.json();
+
+      const limits = { red: 0, yellow: 24, green: 48 };
+
+      const groups = { red: [], yellow: [], green: [] };
+      prs.forEach(p => groups[p.priority].push(p));
+
+      const board = document.getElementById('board');
+
+      ['red','yellow','green'].forEach(level => {
+        const col = document.createElement('div');
+        col.className = `column ${level}`;
+
+        const title = document.createElement('h2');
+        title.innerText = level.toUpperCase();
+        col.appendChild(title);
+
+        groups[level].forEach(pr => {
+          const expired = pr.hoursOpen > limits[level];
+
+          const card = document.createElement('div');
+          card.className = `card ${expired ? 'expired' : ''}`;
+
+          card.innerHTML = `
+            <strong>#${pr.id}</strong> ${pr.title}<br/>
+            <small>Autor: ${pr.author}</small><br/>
+            <small>Horas aberto: ${pr.hoursOpen}</small><br/>
+            <small>Reviewers: ${pr.reviewers.join(', ') || '—'}</small><br/>
+            <a href="${pr.url}" target="_blank">Abrir PR</a>
+          `;
+
+          col.appendChild(card);
+        });
+
+        board.appendChild(col);
+      });
+    }
+
+    load();
+  </script>
+</body>
+</html>
