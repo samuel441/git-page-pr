@@ -12,7 +12,7 @@
 
   <script>
     async function load() {
-      const res = await fetch('./data.json');
+      const res = await fetch('data.json');
       const prs = await res.json();
 
       const limits = { red: 0, yellow: 24, green: 48 };
