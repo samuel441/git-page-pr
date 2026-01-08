@@ -1,31 +1,35 @@
-name: PR Dashboard
+name: Update PR Dashboard Data
 
 on:
-  schedule:
-    - cron: "*/30 * * * *"
+  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+permissions:
+  contents: write
 
 jobs:
-  build-dashboard:
+  update:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      - name: Generate PR data
-        run: node .github/scripts/fetch-prs.js
+      - run: npm install node-fetch
+
+      - run: node .github/scripts/fetch-prs.js
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Commit dashboard data
+      - name: Commit data
         run: |
           git config user.name "github-actions"
-          git config user.email "actions@github.com"
-          git add dashboard/data.json
-          git commit -m "update: pr dashboard data" || echo "no changes"
+          git config user.email "github-actions@github.com"
+          git add data/prs.json
+          git commit -m "update: pr dashboard data" || echo "No changes"
           git push
