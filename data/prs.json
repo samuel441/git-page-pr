@@ -1,5 +1,14 @@
 [
   {
+    "id": 2,
+    "title": "Change title from 'PR Dashboard' to 'PR Dashboard SA'",
+    "author": "samuel441",
+    "url": "https://github.com/samuel441/git-page-pr/pull/2",
+    "labels": [
+      "pr:red"
+    ]
+  },
+  {
     "id": 1,
     "title": "Update header text in index.html",
     "author": "samuel441",
