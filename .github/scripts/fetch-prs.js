@@ -1,29 +1,40 @@
-import fs from 'fs';
-import fetch from 'node-fetch';
+import fs from "fs";
+import { githubRequest } from "./github-app-client.js";
 
-const token = process.env.GITHUB_TOKEN;
-const repo = process.env.GITHUB_REPOSITORY;
+async function run() {
+  // lista só repos que o app vê
+  const repos = await githubRequest(
+    "https://api.github.com/installation/repositories"
+  );
 
-const [owner, name] = repo.split('/');
+  const all = [];
 
-const res = await fetch(`https://api.github.com/repos/${owner}/${name}/pulls?state=open`, {
-  headers: {
-    Authorization: `Bearer ${token}`,
-    Accept: 'application/vnd.github+json'
+  for (const repo of repos.repositories) {
+    const prs = await githubRequest(
+      `https://api.github.com/repos/${repo.full_name}/pulls?state=open`
+    );
+
+    for (const pr of prs) {
+      const labels = pr.labels.map(l => l.name);
+
+      const priority =
+        labels.includes("pr:red") ? "red" :
+        labels.includes("pr:yellow") ? "yellow" :
+        "green";
+
+      all.push({
+        repo: repo.name,
+        owner: repo.owner.login,
+        number: pr.number,
+        title: pr.title,
+        url: pr.html_url,
+        priority
+      });
+    }
   }
-});
 
-const prs = await res.json();
+  fs.mkdirSync("data", { recursive: true });
+  fs.writeFileSync("data/prs.json", JSON.stringify(all, null, 2));
+}
 
-const data = prs.map(pr => ({
-  id: pr.number,
-  title: pr.title,
-  author: pr.user.login,
-  url: pr.html_url,
-  labels: pr.labels.map(l => l.name)
-}));
-
-fs.mkdirSync('data', { recursive: true });
-fs.writeFileSync('data/prs.json', JSON.stringify(data, null, 2));
-
-console.log(`Saved ${data.length} PRs`);
+run();

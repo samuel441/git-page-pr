@@ -1,10 +1,9 @@
 name: Update PR Dashboard Data
 
 on:
-  pull_request:
-  workflow_dispatch:
   schedule:
     - cron: "*/10 * * * *"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -14,43 +13,30 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Checkout correto (com histórico)
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
+          ref: main
           fetch-depth: 0
 
-      # 2️⃣ Setup Node
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # 3️⃣ Instala dependência (sem package.json, mas controlado)
       - name: Install deps
-        run: npm install node-fetch
+        run: npm install jsonwebtoken node-fetch
 
-      # 4️⃣ Executa script
       - name: Generate PR data
-        run: node .github/scripts/fetch-prs.js
+        run: node scripts/fetch-prs.js
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_APP_ID: ${{ secrets.GITHUB_APP_ID }}
+          GITHUB_APP_INSTALLATION_ID: ${{ secrets.GITHUB_APP_INSTALLATION_ID }}
+          GITHUB_APP_PRIVATE_KEY: ${{ secrets.GITHUB_APP_PRIVATE_KEY }}
 
-      # 5️⃣ Configura identidade do git
-      - name: Setup git
+      - name: Commit and push
         run: |
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-      # 6️⃣ Sincroniza com o remoto (EVITA todos os erros anteriores)
-      - name: Sync with remote main
-        run: |
-          git fetch origin main
-          git checkout -B main origin/main
-
-      # 7️⃣ Commit + push seguro
-      - name: Commit and push
-        run: |
-          git add data/prs.json data/alerts.json
+          git add data/prs.json
           git commit -m "update: pr dashboard data" || echo "No changes"
           git push origin main
