@@ -23,13 +23,23 @@ const alert = {
 const file = 'data/alerts.json';
 
 let alerts = [];
+
 if (fs.existsSync(file)) {
-  alerts = JSON.parse(fs.readFileSync(file));
+  const raw = fs.readFileSync(file, 'utf-8').trim();
+
+  if (raw.length > 0) {
+    try {
+      alerts = JSON.parse(raw);
+    } catch (e) {
+      console.error('❌ alerts.json corrompido. Resetando arquivo.');
+      alerts = [];
+    }
+  }
 }
 
 alerts.push(alert);
 
-// mantém só últimos 50
+// mantém só os últimos 50
 alerts = alerts.slice(-50);
 
 fs.mkdirSync('data', { recursive: true });
