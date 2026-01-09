@@ -4,7 +4,7 @@ if ("Notification" in window) {
 }
 
 // ---------- Render dashboard ----------
-fetch('./data/prs.json')
+fetch('../data/prs.json')
   .then(r => r.json())
   .then(prs => renderBoard(prs));
 
