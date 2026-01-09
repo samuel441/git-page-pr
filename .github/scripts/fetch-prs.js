@@ -1,48 +1,29 @@
-const fs = require('fs');
+import fs from 'fs';
+import fetch from 'node-fetch';
 
 const token = process.env.GITHUB_TOKEN;
 const repo = process.env.GITHUB_REPOSITORY;
+
 const [owner, name] = repo.split('/');
 
-async function run() {
-  const res = await fetch(
-    `https://api.github.com/repos/${owner}/${name}/pulls?state=open&per_page=100`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        Accept: 'application/vnd.github+json'
-      }
-    }
-  );
+const res = await fetch(`https://api.github.com/repos/${owner}/${name}/pulls?state=open`, {
+  headers: {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json'
+  }
+});
 
-  const prs = await res.json();
+const prs = await res.json();
 
-  const now = new Date();
+const data = prs.map(pr => ({
+  id: pr.number,
+  title: pr.title,
+  author: pr.user.login,
+  url: pr.html_url,
+  labels: pr.labels.map(l => l.name)
+}));
 
-  const mapped = prs.map(pr => {
-    const labels = pr.labels.map(l => l.name);
+fs.mkdirSync('data', { recursive: true });
+fs.writeFileSync('data/prs.json', JSON.stringify(data, null, 2));
 
-    const priority =
-      labels.includes('pr:red') ? 'red' :
-      labels.includes('pr:yellow') ? 'yellow' :
-      'green';
-
-    const createdAt = new Date(pr.created_at);
-    const hoursOpen = Math.floor((now - createdAt) / 36e5);
-
-    return {
-      id: pr.number,
-      title: pr.title,
-      author: pr.user.login,
-      url: pr.html_url,
-      priority,
-      hoursOpen,
-      reviewers: pr.requested_reviewers.map(r => r.login),
-      createdAt: pr.created_at
-    };
-  });
-
-  fs.writeFileSync('data.json', JSON.stringify(mapped, null, 2));
-}
-
-run();
+console.log(`Saved ${data.length} PRs`);
