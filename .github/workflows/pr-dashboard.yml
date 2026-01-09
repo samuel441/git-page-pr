@@ -25,7 +25,7 @@ jobs:
           git config user.email "github-actions@github.com"
 
       - name: Generate data
-        run: node scripts/fetch-prs.js
+        run: node .github/scripts/fetch-prs.js
 
       - name: Commit and push
         run: |
