@@ -23,7 +23,7 @@ jobs:
           git config user.email "github-actions@github.com"
 
       - name: Register alert
-      - run: node scripts/register-alert.js
+        run: node scripts/register-alert.js
 
       - name: Commit alerts
         run: |
