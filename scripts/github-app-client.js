@@ -1,9 +1,9 @@
 import jwt from "jsonwebtoken";
 import fetch from "node-fetch";
 
-const APP_ID = process.env.GITHUB_APP_ID;
-const INSTALLATION_ID = process.env.GITHUB_APP_INSTALLATION_ID;
-const PRIVATE_KEY = process.env.GITHUB_APP_PRIVATE_KEY.replace(/\\n/g, '\n');
+const APP_ID = process.env.APP_ID;
+const INSTALLATION_ID = process.env.APP_INSTALLATION_ID;
+const PRIVATE_KEY = process.env.APP_PRIVATE_KEY.replace(/\\n/g, '\n');
 
 function createJWT() {
   const now = Math.floor(Date.now() / 1000);
