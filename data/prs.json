@@ -2,6 +2,14 @@
   {
     "repo": "CrudProdutoBackEnd",
     "owner": "samuel441",
+    "number": 2,
+    "title": "Fix connection string in appsettings.json",
+    "url": "https://github.com/samuel441/CrudProdutoBackEnd/pull/2",
+    "priority": "red"
+  },
+  {
+    "repo": "CrudProdutoBackEnd",
+    "owner": "samuel441",
     "number": 1,
     "title": "Fix database name in appsettings.json",
     "url": "https://github.com/samuel441/CrudProdutoBackEnd/pull/1",
