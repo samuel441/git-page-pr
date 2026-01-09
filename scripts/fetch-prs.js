@@ -92,7 +92,7 @@ async function run() {
 
   // Salvar todos os PRs
   if (!fs.existsSync("data")) fs.mkdirSync("data");
-  fs.writeFileSync("data/prs.json", JSON.stringify(allPRs, null, 2));
+  fs.writeFileSync("../data/prs.json", JSON.stringify(allPRs, null, 2));
   console.log(`✅ PRs coletadas: ${allPRs.length}`);
 }
 
