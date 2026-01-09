@@ -1,5 +1,4 @@
 import fs from 'fs';
-import fetch from 'node-fetch';
 
 const token = process.env.GITHUB_TOKEN;
 const repo = process.env.GITHUB_REPOSITORY;
