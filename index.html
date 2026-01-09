@@ -1,25 +1,33 @@
-<script>
-fetch('./data/prs.json')
-  .then(r => r.json())
-  .then(prs => {
-    const container = document.getElementById('cards');
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>PR Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header>
+    <h1>📊 Pull Requests por Prioridade</h1>
+    <div id="stats"></div>
+  </header>
 
-    if (!prs.length) {
-      container.innerHTML = '<p>Nenhuma PR aberta</p>';
-      return;
-    }
+  <main id="board">
+    <div class="column" data-priority="red">
+      <h2>🔴 Urgente</h2>
+      <div class="cards"></div>
+    </div>
 
-    prs.forEach(pr => {
-      const div = document.createElement('div');
-      div.innerHTML = `
-        <h3>#${pr.id} - ${pr.title}</h3>
-        <p>Autor: ${pr.author}</p>
-        <a href="${pr.url}" target="_blank">Abrir PR</a>
-        <hr/>
-      `;
-      container.appendChild(div);
-    });
-  });
-</script>
+    <div class="column" data-priority="yellow">
+      <h2>🟡 Alta</h2>
+      <div class="cards"></div>
+    </div>
 
-<div id="cards"></div>
+    <div class="column" data-priority="green">
+      <h2>🟢 Normal</h2>
+      <div class="cards"></div>
+    </div>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
