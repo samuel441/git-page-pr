@@ -4,8 +4,8 @@ import fetch from "node-fetch";
 import jwt from "jsonwebtoken";
 
 // === Configs do App ===
-const APP_ID = process.env.GITHUB_APP_ID;
-const PRIVATE_KEY = process.env.GITHUB_APP_PRIVATE_KEY.replace(/\\n/g, "\n");
+const APP_ID = process.env.APP_ID;
+const PRIVATE_KEY = process.env.APP_PRIVATE_KEY.replace(/\\n/g, "\n");
 
 // === Função para criar JWT do App ===
 function createJWT(appId, privateKey) {
