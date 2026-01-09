@@ -1,0 +1,32 @@
+name: PR Alerts
+
+on:
+  pull_request:
+    types: [opened, labeled]
+
+permissions:
+  contents: write
+
+jobs:
+  alerts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Setup git
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+
+      - name: Register alert
+      - run: node scripts/register-alert.js
+
+      - name: Commit alerts
+        run: |
+          git add data/alerts.json
+          git commit -m "alert: update pr notifications" || echo "No changes"
+          git push origin HEAD:main
