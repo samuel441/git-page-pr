@@ -53,7 +53,8 @@ function renderBoard(prs) {
     const card = document.createElement('div');
     card.className = `card ${priority}`;
     card.innerHTML = `
-      <h3>#${pr.number} — ${pr.title}</h3>
+      <h3>#${pr.number} — ${pr.repo}</h3>
+      <h2>#${pr.number} — ${pr.title}</h2>
       <p>👤 ${pr.user}</p>
       <a href="${pr.url}" target="_blank">Abrir PR</a>
     `;
