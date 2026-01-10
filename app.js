@@ -1,15 +1,28 @@
 // ---------- Config ----------
 const DATA_URL = './data/prs.json';
-const REFRESH_INTERVAL = 60 * 1000; // 1 minuto
+const REFRESH_INTERVAL = 60 * 1000; // 1 min
+const ALERT_INTERVAL = 2 * 60 * 1000; // 2 min
 
-// ---------- Notificação ----------
-if ('Notification' in window) {
-  Notification.requestPermission();
-}
+// guarda PRs já alertadas
+const notifiedUrgent = new Set();
 
 // ---------- Boot ----------
 loadDashboard();
 setInterval(loadDashboard, REFRESH_INTERVAL);
+setInterval(checkUrgentPRs, ALERT_INTERVAL);
+
+// ---------- Permissão ----------
+document
+  .getElementById('enableNotifications')
+  ?.addEventListener('click', async () => {
+    const result = await Notification.requestPermission();
+    console.log('Permissão:', result);
+  });
+
+// ---------- Helpers ----------
+function canNotify() {
+  return 'Notification' in window && Notification.permission === 'granted';
+}
 
 // ---------- Loader ----------
 async function loadDashboard() {
@@ -35,8 +48,8 @@ async function loadDashboard() {
 function renderBoard(prs) {
   const stats = { red: 0, yellow: 0, green: 0 };
 
-  // limpa antes de renderizar de novo
-  document.querySelectorAll('.column .cards').forEach(c => c.innerHTML = '');
+  document.querySelectorAll('.column .cards')
+    .forEach(c => (c.innerHTML = ''));
 
   prs.forEach(pr => {
     const priority =
@@ -53,8 +66,8 @@ function renderBoard(prs) {
     const card = document.createElement('div');
     card.className = `card ${priority}`;
     card.innerHTML = `
-      <h2>#${pr.number} — ${pr.repo}</h2>
-      <h3>#${pr.number} — ${pr.title}</h3>
+      <h3>${pr.repo} — #${pr.number}</h3>
+      <p>${pr.title}</p>
       <p>👤 ${pr.user}</p>
       <a href="${pr.url}" target="_blank">Abrir PR</a>
     `;
@@ -74,7 +87,7 @@ fetch('./data/alerts.json', { cache: 'no-store' })
 
 // ---------- Notificação ----------
 function showAlert(alert) {
-  if (Notification.permission !== 'granted') return;
+  if (!canNotify()) return;
 
   let title = 'Nova Pull Request';
   let body = alert.title;
@@ -86,7 +99,10 @@ function showAlert(alert) {
   new Notification(title, { body });
 }
 
-setInterval(async () => {
+// ---------- Monitor de urgentes ----------
+async function checkUrgentPRs() {
+  if (!canNotify()) return;
+
   try {
     const res = await fetch(DATA_URL, { cache: 'no-store' });
     const prs = await res.json();
@@ -94,16 +110,15 @@ setInterval(async () => {
     const urgent = prs.filter(p => p.labels.includes('pr:red'));
 
     urgent.forEach(pr => {
+      const key = `${pr.repo}#${pr.number}`;
+
+      if (notifiedUrgent.has(key)) return;
+
+      notifiedUrgent.add(key);
+
       new Notification('🚨 PR ainda pendente', {
-        body: `#${pr.number} — ${pr.title}`
+        body: `${pr.repo} — #${pr.number}: ${pr.title}`
       });
     });
   } catch {}
-}, 2 * 60 * 1000);
-
-document
-  .getElementById('enableNotifications')
-  .addEventListener('click', async () => {
-    const result = await Notification.requestPermission();
-    console.log('Permissão:', result);
-  });
+}
