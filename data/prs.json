@@ -7,11 +7,12 @@
     "url": "https://github.com/samuel441/WebApiDapper/pull/1",
     "state": "open",
     "labels": [
-      "pr:yellow"
+      "pr:yellow",
+      "pr:green"
     ],
     "priority": "yellow",
     "created_at": "2026-01-10T13:57:20Z",
-    "updated_at": "2026-01-10T13:57:20Z",
+    "updated_at": "2026-01-10T14:32:11Z",
     "user": "samuel441"
   },
   {
@@ -72,6 +73,21 @@
     "priority": "red",
     "created_at": "2026-01-09T01:45:51Z",
     "updated_at": "2026-01-09T01:45:51Z",
+    "user": "samuel441"
+  },
+  {
+    "repo": "projeto-jet",
+    "owner": "samuel441",
+    "number": 1,
+    "title": "Update Angular schema path in angular.json",
+    "url": "https://github.com/samuel441/projeto-jet/pull/1",
+    "state": "open",
+    "labels": [
+      "pr.green"
+    ],
+    "priority": "green",
+    "created_at": "2026-01-10T14:33:43Z",
+    "updated_at": "2026-01-10T14:33:43Z",
     "user": "samuel441"
   },
   {
