@@ -86,7 +86,6 @@ function showAlert(alert) {
   new Notification(title, { body });
 }
 
-// ---------- Pressão contínua ----------
 setInterval(async () => {
   try {
     const res = await fetch(DATA_URL, { cache: 'no-store' });
@@ -100,4 +99,11 @@ setInterval(async () => {
       });
     });
   } catch {}
-}, 10 * 60 * 1000);
+}, 2 * 60 * 1000);
+
+document
+  .getElementById('enableNotifications')
+  .addEventListener('click', async () => {
+    const result = await Notification.requestPermission();
+    console.log('Permissão:', result);
+  });
