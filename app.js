@@ -2,8 +2,8 @@
 const DATA_URL = './data/prs.json';
 const REFRESH_INTERVAL = 60 * 1000; // 1 min
 const ALERT_INTERVAL = 2 * 60 * 1000; // 2 min
-const PUBLIC_VAPID = process.env.VAPID_PUBLIC;
-const WORKER_URL = process.env.WORKER_URL;
+const PUBLIC_VAPID = import.meta.env.VAPID_PUBLIC;
+const WORKER_URL = import.meta.env.WORKER_URL;
 
 // guarda PRs já alertadas
 const notifiedUrgent = new Set();
