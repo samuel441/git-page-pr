@@ -71,6 +71,8 @@ function renderBoard(prs) {
 // ---------- Push real ----------
 async function enablePush() {
   const reg = await navigator.serviceWorker.ready;
+const subs = await reg.pushManager.getSubscription();
+console.log(subs);
 
   const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
