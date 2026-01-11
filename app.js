@@ -2,6 +2,8 @@
 const DATA_URL = './data/prs.json';
 const REFRESH_INTERVAL = 60 * 1000; // 1 min
 const ALERT_INTERVAL = 2 * 60 * 1000; // 2 min
+const PUBLIC_VAPID = process.env.VAPID_PUBLIC;
+const WORKER_URL = process.env.WORKER_URL;
 
 // guarda PRs já alertadas
 const notifiedUrgent = new Set();
@@ -121,4 +123,24 @@ async function checkUrgentPRs() {
       });
     });
   } catch {}
+}
+
+async function enablePush() {
+  const reg = await navigator.serviceWorker.ready;
+
+  const sub = await reg.pushManager.subscribe({
+    userVisibleOnly: true,
+    applicationServerKey: PUBLIC_VAPID
+  });
+
+  await fetch(`${WORKER_URL}subscribe`, {
+    method: 'POST',
+    body: JSON.stringify(sub)
+  });
+
+  alert('Notificações ativadas');
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./scripts/sw.js');
 }
