@@ -3,6 +3,11 @@ import fetch from 'node-fetch';
 
 const { VAPID_PUBLIC, VAPID_PRIVATE, WORKER_URL } = process.env;
 
+if (!VAPID_PUBLIC || !VAPID_PRIVATE || !WORKER_URL) {
+  console.error('❌ Variáveis de ambiente não configuradas');
+  process.exit(1);
+}
+
 webpush.setVapidDetails(
   'mailto:admin@dash.com',
   VAPID_PUBLIC,
@@ -10,19 +15,28 @@ webpush.setVapidDetails(
 );
 
 const res = await fetch(`${WORKER_URL}/subscription`);
-const sub = await res.json();
+const subs = await res.json();
 
-if (!sub.endpoint) {
-  console.log('Nenhuma subscription registrada');
+if (!Array.isArray(subs) || subs.length === 0) {
+  console.log('⚠️ Nenhuma subscription registrada');
   process.exit(0);
 }
 
-await webpush.sendNotification(
-  sub,
-  JSON.stringify({
-    title: '🚨 PR urgente',
-    body: 'Tem PR pendente no dashboard'
-  })
-);
+let sent = 0;
 
-console.log('Push enviado');
+for (const sub of subs) {
+  try {
+    await webpush.sendNotification(
+      sub,
+      JSON.stringify({
+        title: '🚨 PR urgente',
+        body: 'Tem PR pendente no dashboard'
+      })
+    );
+    sent++;
+  } catch (err) {
+    console.error('❌ Falha ao enviar push:', err.statusCode || err);
+  }
+}
+
+console.log(`✅ Push enviado para ${sent} device(s)`);
