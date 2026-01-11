@@ -70,22 +70,26 @@ function renderBoard(prs) {
 
 // ---------- Push real ----------
 async function enablePush() {
+  console.log('🔔 iniciando subscribe');
+
   const reg = await navigator.serviceWorker.ready;
-const subs = await reg.pushManager.getSubscription();
-console.log(subs);
+  console.log('SW pronto');
 
   const sub = await reg.pushManager.subscribe({
     userVisibleOnly: true,
     applicationServerKey: PUBLIC_VAPID
   });
+  console.log('Subscription criada', sub);
 
-  await fetch(`${WORKER_URL}/subscribe`, {
+  const res = await fetch(`${WORKER_URL}/subscribe`, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(sub)
   });
 
-  alert('Notificações ativadas');
+  console.log('Worker respondeu', await res.text());
 }
+
 
 // ---------- Service Worker ----------
 if ('serviceWorker' in navigator) {
