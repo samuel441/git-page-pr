@@ -19,6 +19,7 @@ document
   ?.addEventListener('click', async () => {
     const result = await Notification.requestPermission();
     console.log('Permissão:', result);
+    await enablePush();
   });
 
 // ---------- Loader ----------
