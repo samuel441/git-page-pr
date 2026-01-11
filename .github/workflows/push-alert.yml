@@ -17,7 +17,7 @@ jobs:
       - run: npm i web-push node-fetch
 
       - name: Send push
-        run: node send-push.js
+        run: node scripts/send-push.js
         env:
           VAPID_PUBLIC: ${{ secrets.VAPID_PUBLIC }}
           VAPID_PRIVATE: ${{ secrets.VAPID_PRIVATE }}
