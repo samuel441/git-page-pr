@@ -1,17 +1,17 @@
 // ---------- Config ----------
 const DATA_URL = './data/prs.json';
-const REFRESH_INTERVAL = 60 * 1000; // 1 min
-const ALERT_INTERVAL = 2 * 60 * 1000; // 2 min
-const PUBLIC_VAPID = import.meta.env.VAPID_PUBLIC;
-const WORKER_URL = import.meta.env.WORKER_URL;
-
-// guarda PRs já alertadas
-const notifiedUrgent = new Set();
+const REFRESH_INTERVAL = 60 * 1000;
+const PUBLIC_VAPID = 'BA7gjqBbAmKrqp2UKVLLxcZ55N41dQp5w2V2G86r2sIB10Z1jFdyPvlRIRbSGWYNsAclj4KXH7F5-8auB_OPl5U';
+const WORKER_URL = 'https://worker.samuelbatista441.workers.dev';
 
 // ---------- Boot ----------
 loadDashboard();
 setInterval(loadDashboard, REFRESH_INTERVAL);
-setInterval(checkUrgentPRs, ALERT_INTERVAL);
+
+// ---------- Helpers ----------
+function canNotify() {
+  return 'Notification' in window && Notification.permission === 'granted';
+}
 
 // ---------- Permissão ----------
 document
@@ -21,24 +21,11 @@ document
     console.log('Permissão:', result);
   });
 
-// ---------- Helpers ----------
-function canNotify() {
-  return 'Notification' in window && Notification.permission === 'granted';
-}
-
 // ---------- Loader ----------
 async function loadDashboard() {
   try {
-    const res = await fetch(DATA_URL, {
-      cache: 'no-store',
-      headers: {
-        'Cache-Control': 'no-cache',
-        'Pragma': 'no-cache'
-      }
-    });
-
+    const res = await fetch(DATA_URL, { cache: 'no-store' });
     if (!res.ok) throw new Error('Erro carregando prs.json');
-
     const prs = await res.json();
     renderBoard(prs);
   } catch (err) {
@@ -81,50 +68,7 @@ function renderBoard(prs) {
     `🔴 ${stats.red} urgentes  |  🟡 ${stats.yellow} altas  |  🟢 ${stats.green} normais`;
 }
 
-// ---------- Alertas iniciais ----------
-fetch('./data/alerts.json', { cache: 'no-store' })
-  .then(r => r.json())
-  .then(alerts => alerts.forEach(showAlert))
-  .catch(() => {});
-
-// ---------- Notificação ----------
-function showAlert(alert) {
-  if (!canNotify()) return;
-
-  let title = 'Nova Pull Request';
-  let body = alert.title;
-
-  if (alert.priority === 'red') {
-    title = '🚨 PR URGENTE';
-  }
-
-  new Notification(title, { body });
-}
-
-// ---------- Monitor de urgentes ----------
-async function checkUrgentPRs() {
-  if (!canNotify()) return;
-
-  try {
-    const res = await fetch(DATA_URL, { cache: 'no-store' });
-    const prs = await res.json();
-
-    const urgent = prs.filter(p => p.labels.includes('pr:red'));
-
-    urgent.forEach(pr => {
-      const key = `${pr.repo}#${pr.number}`;
-
-      if (notifiedUrgent.has(key)) return;
-
-      notifiedUrgent.add(key);
-
-      new Notification('🚨 PR ainda pendente', {
-        body: `${pr.repo} — #${pr.number}: ${pr.title}`
-      });
-    });
-  } catch {}
-}
-
+// ---------- Push real ----------
 async function enablePush() {
   const reg = await navigator.serviceWorker.ready;
 
@@ -133,7 +77,7 @@ async function enablePush() {
     applicationServerKey: PUBLIC_VAPID
   });
 
-  await fetch(`${WORKER_URL}subscribe`, {
+  await fetch(`${WORKER_URL}/subscribe`, {
     method: 'POST',
     body: JSON.stringify(sub)
   });
@@ -141,6 +85,7 @@ async function enablePush() {
   alert('Notificações ativadas');
 }
 
+// ---------- Service Worker ----------
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('./scripts/sw.js');
 }
